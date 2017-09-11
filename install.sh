@@ -1,6 +1,6 @@
 #!/bin/bash
 # petit script pour installer le proxy mitmproxy
-#zf170911.1149
+#zf170911.1200
 
 #source: 
 
@@ -8,7 +8,7 @@ echo ------------ start
 
 echo ------------ apt-get install utils
 sudo apt-get update
-sudo apt-get install -y gnupg2 jq
+sudo apt-get -y install -y gnupg2 jq
 sudo apt-get -y install python3-dev python3-pip libffi-dev libssl-dev
 export LC_ALL=C
 
@@ -18,6 +18,8 @@ export LC_ALL=C
 sudo -H pip3 install --upgrade pip
 sudo -H pip3 install virtualenv
 
+echo ------------ récupère les secrets
+./acb_uncrypt.sh
 
 echo ------------ install mitmproxy
 virtFold="venvMitmproxy"
