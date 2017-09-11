@@ -1,2 +1,2 @@
 # openid_mitmproxy
-Simulation d'un serveur Tequila via un serveur OpenID
+Emulation d'un serveur Tequila via un serveur OpenID d'un serveur Tequila via un serveur OpenID
