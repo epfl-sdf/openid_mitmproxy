@@ -1,16 +1,19 @@
 # Emulation d'un serveur Tequila via un serveur OpenID
 # Petit Hello World pour se faire un auto connect sur Tequila
 # 170911.1137
+#!/bin/sh
 
 import collections
 import re
 import os
 import errno
 import csv
+import json
+import sys
 
-from bs4 import BeautifulSoup
-from version import __version__
-from urllib.parse import urlparse
+#from bs4 import BeautifulSoup
+#from version import __version__
+#from urllib.parse import urlparse
 
 ORIG_URL = 'epfl.ch'
 DEV_URL = 'dev-web-wordpress.epfl.ch'
@@ -19,12 +22,36 @@ LOGIN = 'wp-login.php'
 
 TARGET_URLS = ['10.92.104.*', '*epfl.ch', '*wordpress*ch', 'localhost*', '0.0.0.0*']
 WP_URLS = ['*web-wordpress.epfl.ch']
+TQ_URLS = ['*tequila.epfl.ch']
 
 COOKIE_FOLDER = 'data/cookies'
 CREDENTIALS_FILE = '../credentials/credentials.csv'
 
 SCRIPT_PATH = 'data/Scripts/'
 TEMPLATE_PATH = 'data/Templates/'
+
+print ("toto135144")
+
+def path_from_root(*x):
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', *x))
+
+#with open('../emule_hello_world_1.secrets.json') as json_file:
+#    secrets = json.load(json_file.read())
+
+with open(path_from_root("../ubuntu/emule_hello_world_1.secrets.json"), 'r') as f:
+    secrets = json.loads(f.read())
+
+#with open(path_from_root('../ubuntu/emule_hello_world_1.secrets.json'), 'r') as json_file:    
+#    secrets = json.load(json_file.read())
+
+print ("toto135208")
+
+print (secrets)
+
+print ("User: ", secrets["TQ_USER"])
+print ("Pass: ", secrets["TQ_PASSWORD"])
+
+sys.exit(0)
 
 class Filter:
 
@@ -33,12 +60,14 @@ class Filter:
         log = pwd = ''
         try:
             f = open(credFilePath)
-            reader = csv.reader(f)
-            for row in reader:
-                if row[3] == name:
-                    log = row[5]
-                    pwd = row[6]
-            f.close()
+            secrets = json.load(f.read())
+            log = secrets["TQ_USER"]
+            pwd = secrets["TQ_PASSWORD"]
+            #reader = csv.reader(f)
+            #for row in reader:
+            #    log = row[1]
+            #    pwd = row[2]
+            #f.close()
         except IOError as ioex:
             print ('No credentials')
         print(log,pwd)
@@ -88,12 +117,13 @@ class Filter:
         url = flow.request.url
 
         # Si l'url n'est PAS à filtrer => quitte la fonction
-        if not Filter.isInUrlList(url, TARGET_URLS)[0]:
+        if not Filter.isInUrlList(url, TARGET_URLS):
             return
 
         # Si l'url est un url wordpress
-        isWpUrl, wpUrl = Filter.isInUrlList(url, WP_URLS)
-        wpUrl = wpUrl.replace('*', '')
+        isTqUrl, tqUrl = Filter.isInUrlList(url, TQ_URLS)
+        #isWpUrl, wpUrl = Filter.isInUrlList(url, WP_URLS)
+        tqUrl = tqUrl.replace('*', '')
 
         # Modifier le html pour filtrer les bugs
         isText = False
@@ -106,20 +136,20 @@ class Filter:
         if isText or url[-4:] == '.jsp':
             html = BeautifulSoup(flow.response.content, 'html.parser')
             # Fill the website with credentials
-            if isWpUrl:
-                name = url.rsplit(wpUrl + '/', 1)[1]
+            if isTqUrl:
+                name = url.rsplit(tqUrl + '/', 1)[1]
                 name = name.split('/')[1]
-                log, pwd =  Filter.getCredentials(name, CREDENTIALS_FILE)
+                #log, pwd =  Filter.getCredentials(name, CREDENTIALS_FILE)
                 for inputTag in html.findAll('input'):
                     if inputTag and inputTag.has_attr('id'):
-                        if inputTag['id'] == 'user_login':
-                            inputTag['value'] = log
-                        if inputTag['id'] == 'user_pass':
-                            inputTag['value'] = pwd
+                        if inputTag['id'] == 'username':
+                            inputTag['value'] = secrets["TQ_USER"]
+                        if inputTag['id'] == 'password':
+                            inputTag['value'] = secrets["TQ_PASSWORD"]
 
             # Si ce n'est le site WP => c'est l'EPFL
-            if not isWpUrl:
-                self.remove_right_panel_color(html)
+            #if not isWpUrl:
+            #    self.remove_right_panel_color(html)
 
             # Modifications apportées aux nouvelles versions du site
             if isWpUrl:
@@ -246,8 +276,12 @@ class Filter:
 def start():
     return Filter()
 
-if __name__ == '__main__':
-    url1 = 'http://test-web-wordpress.epfl.ch/v1-testwp/briskenlab'
-    cookieFoldPath = 'data/cookies'
-    credFilePath = '../credentials/credentials.csv'
-    print(Filter.getCookie(url1, cookieFoldPath, credFilePath))
+#if __name__ == '__main__':
+#    url1 = 'http://test-web-wordpress.epfl.ch/v1-testwp/briskenlab'
+#    cookieFoldPath = 'data/cookies'
+#    credFilePath = '../credentials/credentials.csv'
+#    print(Filter.getCookie(url1, cookieFoldPath, credFilePath))
+
+
+
+#Filter.getCredentials(None, os.path.abspath("../emule_hello_world_1.secrets.json"))

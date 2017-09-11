@@ -1,3 +1,5 @@
+*.crt
+stream*.txt
 venv*
 toto*
 
