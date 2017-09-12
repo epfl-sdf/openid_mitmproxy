@@ -33,8 +33,8 @@ source $virtFold/bin/activate
 #mitmproxy
 #mitmproxy --insecure
 
-#sudo mitmproxy -p 443 -R https://tequila.epfl.ch/ --insecure -s ./emule_hello_world_1.py
-sudo mitmdump -p 443 -R https://tequila.epfl.ch/ --insecure -s ./emule_hello_world_1.py
+#sudo mitmproxy -p 443 -R https://tequila.epfl.ch/ --insecure -s ./code_emule_hello_world_1.py
+sudo mitmdump -p 443 -R https://tequila.epfl.ch/ --insecure -s ./code_emule_hello_world_1.py
 
 #!/bin/sh
 #python ./emule_hello_world_1.py
