@@ -1,6 +1,6 @@
 #!/bin/bash
 # petit script pour installer le proxy mitmproxy
-#zf170911.1200
+#zf170911.1640
 
 #source: 
 
@@ -27,6 +27,7 @@ rm -rf $virtFold
 virtualenv -p /usr/bin/python3 $virtFold
 source $virtFold/bin/activate
 sudo -H pip3 install mitmproxy
+sudo -H pip3 install beautifulsoup4
 
 deactivate
 

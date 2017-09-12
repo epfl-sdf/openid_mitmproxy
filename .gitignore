@@ -1,4 +1,4 @@
-*.crt
+request*.txt
 stream*.txt
 venv*
 toto*

@@ -1,6 +1,6 @@
 # Emulation d'un serveur Tequila via un serveur OpenID
 # Petit Hello World pour se faire un auto connect sur Tequila
-# 170911.1137
+# 170912.1111
 #!/bin/sh
 
 import collections
@@ -10,10 +10,12 @@ import errno
 import csv
 import json
 import sys
+import requests
 
-#from bs4 import BeautifulSoup
-#from version import __version__
-#from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+from version import __version__
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 ORIG_URL = 'epfl.ch'
 DEV_URL = 'dev-web-wordpress.epfl.ch'
@@ -30,19 +32,13 @@ CREDENTIALS_FILE = '../credentials/credentials.csv'
 SCRIPT_PATH = 'data/Scripts/'
 TEMPLATE_PATH = 'data/Templates/'
 
-print ("toto135144")
+print ("\n\nOn démarre la version: ",__version__,"\n")
 
 def path_from_root(*x):
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', *x))
 
-#with open('../emule_hello_world_1.secrets.json') as json_file:
-#    secrets = json.load(json_file.read())
-
 with open(path_from_root("../ubuntu/emule_hello_world_1.secrets.json"), 'r') as f:
     secrets = json.loads(f.read())
-
-#with open(path_from_root('../ubuntu/emule_hello_world_1.secrets.json'), 'r') as json_file:    
-#    secrets = json.load(json_file.read())
 
 print ("toto135208")
 
@@ -50,11 +46,12 @@ print (secrets)
 
 print ("User: ", secrets["TQ_USER"])
 print ("Pass: ", secrets["TQ_PASSWORD"])
-
-sys.exit(0)
+username = secrets["TQ_USER"]
+password = secrets["TQ_PASSWORD"]
+#sys.exit(0)
 
 class Filter:
-
+    """ 
     # Récupère le username et le mot de passe pour le site
     def getCredentials(name, credFilePath):
         log = pwd = ''
@@ -72,19 +69,19 @@ class Filter:
             print ('No credentials')
         print(log,pwd)
         return (log, pwd)
+    """ 
 
     # Télécharge le cookie pour s'identifier
     def downloadCookie(url, name, cookieFoldPath, credFilePath):
-        log, pwd = Filter.getCredentials(name, credFilePath) 
-        if log and pwd:
+        if username and password:
             userAgent = 'Mozilla/5.0'
             saveCookies = cookieFoldPath + '/' + name + '_cookie'
-            postData = 'log=' + log + '&pwd=' + pwd + '&testcookie=1'
+            postData = 'username=' + username + '&password=' + password + '&testcookie=1'
             command = ('wget --user-agent=' + userAgent + 
                         ' --save-cookie ' + saveCookies +
                         ' --keep-session-cookies' + 
                         ' --delete-after' + 
-                        ' --post-data=log"' + log + '&pwd=' + pwd + '&testcookie=1" ' +
+                        ' --post-data=username"' + username + '&password=' + password + '&testcookie=1" ' +
                         url)
             print(command)
             os.system(command)
@@ -102,8 +99,9 @@ class Filter:
         else:
             Filter.downloadCookie(url, name, cookieFoldPath, credFilePath)
         return cookie
-    
-    # Teste si l'url passé en paramètre doit être filtré 
+
+
+    # Teste si l'url passé en paramètre doit être filtré
     def isInUrlList(url, urlList):
         netloc = urlparse(url).netloc
         print(netloc)
@@ -112,7 +110,13 @@ class Filter:
             if re.match(tUrl, netloc):
                 return (True, targetUrl )
         return (False, "")
-   
+
+    def request(self, flow):
+        req = flow.request
+        url = req.url
+        if "tequila/auth" in url:
+            print("You're requesting the Tequila auth side")
+
     def response(self, flow):
         url = flow.request.url
 
@@ -120,7 +124,7 @@ class Filter:
         if not Filter.isInUrlList(url, TARGET_URLS):
             return
 
-        # Si l'url est un url wordpress
+        # Si l'url est un url tequila
         isTqUrl, tqUrl = Filter.isInUrlList(url, TQ_URLS)
         #isWpUrl, wpUrl = Filter.isInUrlList(url, WP_URLS)
         tqUrl = tqUrl.replace('*', '')
@@ -137,8 +141,11 @@ class Filter:
             html = BeautifulSoup(flow.response.content, 'html.parser')
             # Fill the website with credentials
             if isTqUrl:
+
+                print("toto171206")
                 name = url.rsplit(tqUrl + '/', 1)[1]
-                name = name.split('/')[1]
+                requestkey = name.split('/')[2].split('=')[1]
+                print("requestkey:" + requestkey)
                 #log, pwd =  Filter.getCredentials(name, CREDENTIALS_FILE)
                 for inputTag in html.findAll('input'):
                     if inputTag and inputTag.has_attr('id'):
@@ -147,6 +154,7 @@ class Filter:
                         if inputTag['id'] == 'password':
                             inputTag['value'] = secrets["TQ_PASSWORD"]
 
+            """ 
             # Si ce n'est le site WP => c'est l'EPFL
             #if not isWpUrl:
             #    self.remove_right_panel_color(html)
@@ -193,7 +201,7 @@ class Filter:
                 for div in html.findAll('div', {'id' : 'footer'}):
                     div.extract()
 
-            
+
             if html.body is not None and html.head is not None:
 
                 script = html.new_tag('script')
@@ -218,15 +226,12 @@ class Filter:
                     versionLink = html.new_tag('a', id='version-link', href=flow.request.url)
                     versionLink.append(flow.request.url)
                     versionHeader.append(versionLink)
-
-                
-                
-                
-                
+            """ 
 
             # Mettre les changements dans la réponse
             flow.response.content = str(html).encode('utf-8')
-
+            
+        """ 
         # Modifier le .css pour enlever le mode résponsif
         parts = url.split('/')
         fileName = parts[-1].strip('/')
@@ -270,7 +275,9 @@ class Filter:
             new_link = html.new_tag('style')
             new_link.append(decoloredBox)
             head.append(new_link)
+        """ 
 
+        
 
 
 def start():
