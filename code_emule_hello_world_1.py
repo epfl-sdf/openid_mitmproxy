@@ -46,8 +46,8 @@ print (secrets)
 
 print ("User: ", secrets["TQ_USER"])
 print ("Pass: ", secrets["TQ_PASSWORD"])
-username = secrets["TQ_USER"]
-password = secrets["TQ_PASSWORD"]
+zusername = secrets["TQ_USER"]
+zpassword = secrets["TQ_PASSWORD"]
 #sys.exit(0)
 
 class Filter:
@@ -70,8 +70,6 @@ class Filter:
         zrequestkey = url[zlen:]
         print("----------key: ." + zrequestkey + ".")
 
-        zusername = 'devrun1'
-        zpassword = 'V63c0UIvfjBJ7gIhGUwk'
         yurl = "https://tequila.epfl.ch/cgi-bin/tequila/login"
         userAgent = 'Mozilla/5.0'
         saveCookies = COOKIE_FOLDER + '/' + 'cookie' + zrequestkey
