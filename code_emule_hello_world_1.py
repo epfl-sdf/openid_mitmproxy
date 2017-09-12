@@ -1,6 +1,6 @@
 # Emulation d'un serveur Tequila via un serveur OpenID
 # Petit Hello World pour se faire un auto connect sur Tequila
-# 170912.1207
+# 170912.180931
 
 import collections
 import re
@@ -15,7 +15,6 @@ from bs4 import BeautifulSoup
 from version import __version__
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
-#from urllib2 import urlopen
 
 ORIG_URL = 'epfl.ch'
 DEV_URL = 'dev-web-wordpress.epfl.ch'
@@ -94,12 +93,3 @@ class Filter:
 def start():
     return Filter()
 
-#if __name__ == '__main__':
-#    url1 = 'http://test-web-wordpress.epfl.ch/v1-testwp/briskenlab'
-#    cookieFoldPath = 'data/cookies'
-#    credFilePath = '../credentials/credentials.csv'
-#    print(Filter.getCookie(url1, cookieFoldPath, credFilePath))
-
-
-
-#Filter.getCredentials(None, os.path.abspath("../emule_hello_world_1.secrets.json"))
