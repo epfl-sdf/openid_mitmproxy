@@ -37,7 +37,7 @@ source $virtFold/bin/activate
 sudo mitmdump -p 443 -R https://tequila.epfl.ch/ --insecure -s ./code_emule_hello_world_1.py
 
 #!/bin/sh
-#python ./emule_hello_world_1.py
+#python ./tutu.py
 
 
 deactivate
